@@ -7,19 +7,39 @@ from glob import glob
 import click
 import pkg_resources
 from tutor import hooks
+from tutor.__about__ import __version_suffix__
 
 from .__about__ import __version__
 
-########################################
-# CONFIGURATION
-########################################
+# Handle version suffix in nightly mode, just like tutor core
+if __version_suffix__:
+    __version__ += "-" + __version_suffix__
+
+config = {
+    "defaults": {
+        "VERSION": __version__,
+        # TODO: update DOCKER_IMAGE
+        "DOCKER_IMAGE": "{{ DOCKER_REGISTRY }}overhangio/openedx-forum:{{ FORUM_VERSION }}",
+        "MYSQL_DATABASE": "discovery",
+        "MYSQL_USERNAME": "discovery",
+        "REPOSITORY": "https://github.com/krishnamadhavan/keesh-studio.git",
+        "REPOSITORY_VERSION": "{{ OPENEDX_COMMON_VERSION }}",
+    },
+    "unique": {
+        "MYSQL_PASSWORD": "{{ 8|random_string }}",
+    }
+}
+
+# Configuration entries
+# ----------------------------------------------------------------------------------------------------
 
 hooks.Filters.CONFIG_DEFAULTS.add_items(
     [
         # Add your new settings that have default values here.
         # Each new setting is a pair: (setting_name, default_value).
         # Prefix your setting names with 'KEESHSTUDIO_'.
-        ("KEESHSTUDIO_VERSION", __version__),
+        # ("KEESHSTUDIO_VERSION", __version__),
+        (f"KEESHSTUDIO_{key}", value) for key, value in config.get("defaults", {}).items()
     ]
 )
 
@@ -30,7 +50,8 @@ hooks.Filters.CONFIG_UNIQUE.add_items(
         # Each new setting is a pair: (setting_name, unique_generated_value).
         # Prefix your setting names with 'KEESHSTUDIO_'.
         # For example:
-        ### ("KEESHSTUDIO_SECRET_KEY", "{{ 24|random_string }}"),
+        # ("KEESHSTUDIO_SECRET_KEY", "{{ 24|random_string }}"),
+        (f"KEESHSTUDIO_{key}", value) for key, value in config.get("unique", {}).items()
     ]
 )
 
@@ -39,43 +60,47 @@ hooks.Filters.CONFIG_OVERRIDES.add_items(
         # Danger zone!
         # Add values to override settings from Tutor core or other plugins here.
         # Each override is a pair: (setting_name, new_value). For example:
-        ### ("PLATFORM_NAME", "My platform"),
+        # ("PLATFORM_NAME", "My platform"),
+        list(config.get("overrides", {}).items())
     ]
 )
 
-
-########################################
-# INITIALIZATION TASKS
-########################################
+# Initialization Tasks
+# ----------------------------------------------------------------------------------------------------
 
 # To add a custom initialization task, create a bash script template under:
 # tutorkeeshstudio/templates/keeshstudio/tasks/
 # and then add it to the MY_INIT_TASKS list. Each task is in the format:
 # ("<service>", ("<path>", "<to>", "<script>", "<template>"))
-MY_INIT_TASKS: list[tuple[str, tuple[str, ...]]] = [
-    # For example, to add LMS initialization steps, you could add the script template at:
-    # tutorkeeshstudio/templates/keeshstudio/tasks/lms/init.sh
-    # And then add the line:
-    ### ("lms", ("keeshstudio", "tasks", "lms", "init.sh")),
-]
 
+# For example, to add LMS initialization steps, you could add the script template at:
+# tutorkeeshstudio/templates/keeshstudio/tasks/lms/init.sh
+# And then add the line:
+# ("lms", ("keeshstudio", "tasks", "lms", "init.sh")),
+init_tasks = ("mysql", "lms", "keeshstudio")
+for service in init_tasks:
+    with open(
+        os.path.join(
+            pkg_resources.resource_filename("tutorkeeshstudio", "templates"),
+            "keeshstudio",
+            "tasks",
+            service,
+            "init",
+        ),
+        encoding="utf8",
+    ) as fi:
+        # For each task added to init_tasks, we load the task template
+        # and add it to the CLI_DO_INIT_TASKS filter, which tells Tutor to
+        # run it as part of the `init` job.
+        tutor_hooks.Filters.CLI_DO_INIT_TASKS.add_item(
+            (
+                service,
+                fi.read(),
+            )
+        )
 
-# For each task added to MY_INIT_TASKS, we load the task template
-# and add it to the CLI_DO_INIT_TASKS filter, which tells Tutor to
-# run it as part of the `init` job.
-for service, template_path in MY_INIT_TASKS:
-    full_path: str = pkg_resources.resource_filename(
-        "tutorkeeshstudio", os.path.join("templates", *template_path)
-    )
-    with open(full_path, encoding="utf-8") as init_task_file:
-        init_task: str = init_task_file.read()
-    hooks.Filters.CLI_DO_INIT_TASKS.add_item((service, init_task))
-
-
-########################################
-# DOCKER IMAGE MANAGEMENT
-########################################
-
+# Docker Image Management
+# ----------------------------------------------------------------------------------------------------
 
 # Images to be built by `tutor images build`.
 # Each item is a quadruple in the form:
@@ -94,7 +119,6 @@ hooks.Filters.IMAGES_BUILD.add_items(
     ]
 )
 
-
 # Images to be pulled as part of `tutor images pull`.
 # Each item is a pair in the form:
 #     ("<tutor_image_name>", "<docker_image_tag>")
@@ -108,7 +132,6 @@ hooks.Filters.IMAGES_PULL.add_items(
     ]
 )
 
-
 # Images to be pushed as part of `tutor images push`.
 # Each item is a pair in the form:
 #     ("<tutor_image_name>", "<docker_image_tag>")
@@ -121,7 +144,6 @@ hooks.Filters.IMAGES_PUSH.add_items(
         ### ),
     ]
 )
-
 
 ########################################
 # TEMPLATE RENDERING
@@ -148,7 +170,6 @@ hooks.Filters.ENV_TEMPLATE_TARGETS.add_items(
     ],
 )
 
-
 ########################################
 # PATCH LOADING
 # (It is safe & recommended to leave
@@ -165,7 +186,6 @@ for path in glob(
 ):
     with open(path, encoding="utf-8") as patch_file:
         hooks.Filters.ENV_PATCHES.add_item((os.path.basename(path), patch_file.read()))
-
 
 ########################################
 # CUSTOM JOBS (a.k.a. "do-commands")
