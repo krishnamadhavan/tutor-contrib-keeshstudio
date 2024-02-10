@@ -1,0 +1,2 @@
+recursive-include tutorkeeshstudio/patches *
+recursive-include tutorkeeshstudio/templates *
