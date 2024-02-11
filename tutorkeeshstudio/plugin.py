@@ -33,15 +33,15 @@ config = {
 
 # Configuration entries
 # ----------------------------------------------------------------------------------------------------
-hooks.Filters.CONFIG_DEFAULTS.add_items(
+tutor_hooks.Filters.CONFIG_DEFAULTS.add_items(
     [(f"KEESHSTUDIO_{key}", value) for key, value in config.get("defaults", {}).items()]
 )
 
-hooks.Filters.CONFIG_UNIQUE.add_items(
+tutor_hooks.Filters.CONFIG_UNIQUE.add_items(
     [(f"KEESHSTUDIO_{key}", value) for key, value in config.get("unique", {}).items()]
 )
 
-hooks.Filters.CONFIG_OVERRIDES.add_items(
+tutor_hooks.Filters.CONFIG_OVERRIDES.add_items(
     [list(config.get("overrides", {}).items())]
 )
 
@@ -68,7 +68,7 @@ for service, template_path in MY_INIT_TASKS:
 
 # Docker Image Management
 # ----------------------------------------------------------------------------------------------------
-hooks.Filters.IMAGES_BUILD.add_items(
+tutor_hooks.Filters.IMAGES_BUILD.add_items(
     [
         (
             "keeshstudio",
@@ -79,7 +79,7 @@ hooks.Filters.IMAGES_BUILD.add_items(
     ]
 )
 
-hooks.Filters.IMAGES_PULL.add_items(
+tutor_hooks.Filters.IMAGES_PULL.add_items(
     [
         (
             "keeshstudio",
@@ -88,7 +88,7 @@ hooks.Filters.IMAGES_PULL.add_items(
     ]
 )
 
-hooks.Filters.IMAGES_PUSH.add_items(
+tutor_hooks.Filters.IMAGES_PUSH.add_items(
     [
         (
             "keeshstudio",
@@ -134,12 +134,12 @@ def _print_keeshstudio_public_hosts(
 # Template Rendering
 # ----------------------------------------------------------------------------------------------------
 # Add the "templates" folder as a template root
-hooks.Filters.ENV_TEMPLATE_ROOTS.add_items(
+tutor_hooks.Filters.ENV_TEMPLATE_ROOTS.add_items(
     [pkg_resources.resource_filename("tutorkeeshstudio", "templates")]
 )
 
 # Render the "build" and "apps" folders
-hooks.Filters.ENV_TEMPLATE_TARGETS.add_items(
+tutor_hooks.Filters.ENV_TEMPLATE_TARGETS.add_items(
     [
         ("keeshstudio/build", "plugins"),
         ("keeshstudio/apps", "plugins"),
@@ -155,4 +155,4 @@ for path in glob(
     )
 ):
     with open(path, encoding="utf-8") as patch_file:
-        hooks.Filters.ENV_PATCHES.add_item((os.path.basename(path), patch_file.read()))
+        tutor_hooks.Filters.ENV_PATCHES.add_item((os.path.basename(path), patch_file.read()))
