@@ -19,7 +19,7 @@ config = {
     "defaults": {
         "VERSION": __version__,
         # TODO: update DOCKER_IMAGE
-        "DOCKER_IMAGE": "{{ DOCKER_REGISTRY }}overhangio/openedx-forum:{{ KEESHSTUDIO_VERSION }}",
+        "DOCKER_IMAGE": "{{ DOCKER_REGISTRY }}krishnamadhavan/keesh-studio:{{ KEESHSTUDIO_VERSION }}",
         "MYSQL_DATABASE": "keeshstudio",
         "MYSQL_USERNAME": "keeshstudio",
         "REPOSITORY": "https://github.com/krishnamadhavan/keesh-studio.git",
