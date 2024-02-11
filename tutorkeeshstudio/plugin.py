@@ -42,7 +42,7 @@ tutor_hooks.Filters.CONFIG_UNIQUE.add_items(
 )
 
 tutor_hooks.Filters.CONFIG_OVERRIDES.add_items(
-    [list(config.get("overrides", {}).items())]
+    list(config.get("overrides", {}).items())
 )
 
 
