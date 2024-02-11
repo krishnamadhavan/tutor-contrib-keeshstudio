@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 import os
-import os.path
+import typing as t
 from glob import glob
 
-import click
 import pkg_resources
-from tutor import hooks
+from tutor import hooks as tutor_hooks
 from tutor.__about__ import __version_suffix__
 
 from .__about__ import __version__
