@@ -1,0 +1,9 @@
+keeshstudio:
+  image: {{ KEESHSTUDIO_DOCKER_IMAGE }}
+  environment:
+    DJANGO_SETTINGS_MODULE: keeshstudio.settings.tutor
+  volumes:
+    - ../plugins/keeshstudio/apps/settings/tutor.py:/app/keesh-studio/keeshstudio/settings/tutor.py:ro
+    - ../../data/keeshstudio:/app/data
+  restart: unless-stopped
+  depends_on: {{ [("mysql", RUN_MYSQL)]|list_if }}

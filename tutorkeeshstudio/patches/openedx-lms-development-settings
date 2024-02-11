@@ -1,0 +1,2 @@
+KEESHSTUDIO_PUBLIC_API = "http://{{ KEESHSTUDIO_HOST }}:8120/api/v1"
+KEESHSTUDIO_INTERNAL_API = "http://keeshstudio:8120/api/v1"

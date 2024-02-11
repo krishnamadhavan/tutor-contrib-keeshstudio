@@ -1,0 +1,4 @@
+# Keesh Studio
+{{ KEESHSTUDIO_HOST }}{$default_site_port} {
+    import proxy "keeshstudio:8000"
+}

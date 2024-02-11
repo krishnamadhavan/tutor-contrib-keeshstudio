@@ -1,0 +1,2 @@
+KEESHSTUDIO_PUBLIC_API = "{{ "https" if ENABLE_HTTPS else "http" }}://{{ KEESHSTUDIO_HOST }}/api/v1"
+KEESHSTUDIO_INTERNAL_API = "http://keeshstudio:8000/api/v1"

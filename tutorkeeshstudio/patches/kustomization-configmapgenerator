@@ -1,0 +1,3 @@
+- name: keeshstudio-settings
+  files:
+    - plugins/keeshstudio/apps/settings/tutor.py
