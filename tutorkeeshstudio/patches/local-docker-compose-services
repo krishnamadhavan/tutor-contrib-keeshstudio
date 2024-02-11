@@ -1,7 +1,7 @@
 keeshstudio:
   image: {{ KEESHSTUDIO_DOCKER_IMAGE }}
   environment:
-    DJANGO_SETTINGS_MODULE: keeshstudio.settings.tutor
+    DJANGO_SETTINGS_MODULE: keeshstudio.settings.common
   volumes:
     - ../plugins/keeshstudio/apps/settings/tutor.py:/app/keesh-studio/keeshstudio/settings/tutor.py:ro
     - ../../data/keeshstudio:/app/data
